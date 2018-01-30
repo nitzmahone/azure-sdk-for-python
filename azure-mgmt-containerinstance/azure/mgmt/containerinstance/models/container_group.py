@@ -64,7 +64,6 @@ class ContainerGroup(Resource):
         'id': {'readonly': True},
         'name': {'readonly': True},
         'type': {'readonly': True},
-        'location': {'required': True},
         'provisioning_state': {'readonly': True},
         'containers': {'required': True},
         'os_type': {'required': True},
@@ -87,7 +86,7 @@ class ContainerGroup(Resource):
         'instance_view': {'key': 'properties.instanceView', 'type': 'ContainerGroupPropertiesInstanceView'},
     }
 
-    def __init__(self, location, containers, os_type, tags=None, image_registry_credentials=None, restart_policy=None, ip_address=None, volumes=None):
+    def __init__(self, containers, os_type, location=None, tags=None, image_registry_credentials=None, restart_policy=None, ip_address=None, volumes=None):
         super(ContainerGroup, self).__init__(location=location, tags=tags)
         self.provisioning_state = None
         self.containers = containers

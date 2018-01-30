@@ -25,22 +25,31 @@ class IpAddress(Model):
     :vartype type: str
     :param ip: The IP exposed to the public internet.
     :type ip: str
+    :param dnsnamelabel: The Dns name label for the IP.
+    :type dnsnamelabel: str
+    :ivar fqdn: The FQDN for the IP.
+    :vartype fqdn: str
     """
 
     _validation = {
         'ports': {'required': True},
         'type': {'required': True, 'constant': True},
+        'fqdn': {'readonly': True},
     }
 
     _attribute_map = {
         'ports': {'key': 'ports', 'type': '[Port]'},
         'type': {'key': 'type', 'type': 'str'},
         'ip': {'key': 'ip', 'type': 'str'},
+        'dnsnamelabel': {'key': 'dnsnamelabel', 'type': 'str'},
+        'fqdn': {'key': 'fqdn', 'type': 'str'},
     }
 
     type = "Public"
 
-    def __init__(self, ports, ip=None):
+    def __init__(self, ports, ip=None, dnsnamelabel=None):
         super(IpAddress, self).__init__()
         self.ports = ports
         self.ip = ip
+        self.dnsnamelabel = dnsnamelabel
+        self.fqdn = None
