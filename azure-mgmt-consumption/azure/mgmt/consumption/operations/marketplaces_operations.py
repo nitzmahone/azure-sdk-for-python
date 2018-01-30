@@ -121,11 +121,13 @@ class MarketplacesOperations(object):
         return deserialized
 
     def list_by_billing_period(
-            self, filter=None, top=None, skiptoken=None, custom_headers=None, raw=False, **operation_config):
+            self, billing_period_name, filter=None, top=None, skiptoken=None, custom_headers=None, raw=False, **operation_config):
         """Lists the marketplaces for a scope by billing period and
         subscripotionId. Marketplaces are available via this API only for May
         1, 2014 or later.
 
+        :param billing_period_name: Billing Period Name.
+        :type billing_period_name: str
         :param filter: May be used to filter marketplaces by
          properties/usageEnd (Utc time), properties/usageStart (Utc time),
          properties/resourceGroup, properties/instanceName or
@@ -158,7 +160,7 @@ class MarketplacesOperations(object):
                 url = '/subscriptions/{subscriptionId}/providers/Microsoft.Billing/billingPeriods/{billingPeriodName}/providers/Microsoft.Consumption/marketplaces'
                 path_format_arguments = {
                     'subscriptionId': self._serialize.url("self.config.subscription_id", self.config.subscription_id, 'str'),
-                    'billingPeriodName': self._serialize.url("self.config.billing_period_name", self.config.billing_period_name, 'str')
+                    'billingPeriodName': self._serialize.url("billing_period_name", billing_period_name, 'str')
                 }
                 url = self._client.format_url(url, **path_format_arguments)
 
