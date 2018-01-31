@@ -31,11 +31,14 @@ class ManagementGroupsAPIConfiguration(AzureConfiguration):
     :type group_id: str
     :param subscription_id: Subscription ID.
     :type subscription_id: str
+    :param cache_control: Indicates that the request shouldn't utilize any
+     caches.
+    :type cache_control: str
     :param str base_url: Service URL
     """
 
     def __init__(
-            self, credentials, group_id, subscription_id, base_url=None):
+            self, credentials, group_id, subscription_id, cache_control="no-cache", base_url=None):
 
         if credentials is None:
             raise ValueError("Parameter 'credentials' must not be None.")
@@ -54,6 +57,7 @@ class ManagementGroupsAPIConfiguration(AzureConfiguration):
         self.credentials = credentials
         self.group_id = group_id
         self.subscription_id = subscription_id
+        self.cache_control = cache_control
 
 
 class ManagementGroupsAPI(object):
@@ -78,13 +82,16 @@ class ManagementGroupsAPI(object):
     :type group_id: str
     :param subscription_id: Subscription ID.
     :type subscription_id: str
+    :param cache_control: Indicates that the request shouldn't utilize any
+     caches.
+    :type cache_control: str
     :param str base_url: Service URL
     """
 
     def __init__(
-            self, credentials, group_id, subscription_id, base_url=None):
+            self, credentials, group_id, subscription_id, cache_control="no-cache", base_url=None):
 
-        self.config = ManagementGroupsAPIConfiguration(credentials, group_id, subscription_id, base_url)
+        self.config = ManagementGroupsAPIConfiguration(credentials, group_id, subscription_id, cache_control, base_url)
         self._client = ServiceClient(self.config.credentials, self.config)
 
         client_models = {k: v for k, v in models.__dict__.items() if isinstance(v, type)}
