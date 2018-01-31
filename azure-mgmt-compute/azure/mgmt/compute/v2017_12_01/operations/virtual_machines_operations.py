@@ -520,6 +520,89 @@ class VirtualMachinesOperations(object):
 
         return deserialized
 
+    def instance_view_batch(
+            self, vm_ids, custom_headers=None, raw=False, **operation_config):
+        """Retrieves information about the run-time state of a virtual machine.
+
+        :param resource_group_name: The name of the resource group.
+        :type resource_group_name: str
+        :param vm_name: The name of the virtual machine.
+        :type vm_name: str
+        :param dict custom_headers: headers that will be added to the request
+        :param bool raw: returns the direct response alongside the
+         deserialized response
+        :param operation_config: :ref:`Operation configuration
+         overrides<msrest:optionsforoperations>`.
+        :return: VirtualMachineInstanceView or ClientRawResponse if raw=true
+        :rtype:
+         ~azure.mgmt.compute.v2017_12_01.models.VirtualMachineInstanceView or
+         ~msrest.pipeline.ClientRawResponse
+        :raises: :class:`CloudError<msrestazure.azure_exceptions.CloudError>`
+        """
+        batched_requests = []
+
+        idnum = 0
+        # Construct URL
+        for id in vm_ids:
+            idnum+=1
+            url = "{id}/instanceView"
+            path_format_arguments = dict(id=id)
+            url = self._client.format_url(url, **path_format_arguments)
+
+            # Construct parameters
+            query_parameters = {}
+            query_parameters['api-version'] = self._serialize.query("self.api_version", self.api_version, 'str')
+
+            request = self._client.get(url, query_parameters)
+
+            batch_request = dict(httpMethod=request.method, url=request.url, name=idnum)
+            batched_requests.append(batch_request)
+
+        url = '/batch'
+        query_parameters = {'api-version': '2015-11-01'}
+
+        # Construct headers
+        header_parameters = {}
+        header_parameters['Content-Type'] = 'application/json; charset=utf-8'
+        if self.config.generate_client_request_id:
+            header_parameters['x-ms-client-request-id'] = str(uuid.uuid1())
+        if custom_headers:
+            header_parameters.update(custom_headers)
+        if self.config.accept_language is not None:
+            header_parameters['accept-language'] = self._serialize.header("self.config.accept_language", self.config.accept_language, 'str')
+
+        body_obj = dict(requests=batched_requests)
+
+        body_content = self._serialize.body(body_obj, 'object')
+
+        # Construct and send request
+        request = self._client.post(url, query_parameters)
+        response = self._client.send(request, header_parameters, body_content, **operation_config)
+
+        if response.status_code not in [200]:
+            exp = CloudError(response)
+            exp.request_id = response.headers.get('x-ms-request-id')
+            raise exp
+
+        deserialized = None
+
+        # TODO: add support for long-running operations (>20 requests)
+        # TODO: add support for chunking > 500 requests
+
+        if response.status_code == 200:
+
+            deserialized = self._deserialize('object', response)
+            ivs = []
+            for r in deserialized['responses']:
+                ivs.append(self._deserialize('VirtualMachineInstanceView', r['content']))
+
+        if raw:
+            client_raw_response = ClientRawResponse(deserialized, response)
+            return client_raw_response
+
+        return ivs
+
+
 
     def _convert_to_managed_disks_initial(
             self, resource_group_name, vm_name, custom_headers=None, raw=False, **operation_config):
